@@ -57,8 +57,7 @@ extern "C" void app_main(void) {
 
 
     // Main loop periodically polls inputs and sleeps between iterations
-    const TickType_t period = pdMS_TO_TICKS(cfg::POLL_PERIOD_MS);
-    // single dt + period (no duplicates)
+    // Polling interval in milliseconds and RTOS ticks
     const int dt_ms = cfg::POLL_PERIOD_MS;
     const TickType_t period = pdMS_TO_TICKS(dt_ms);
 
@@ -67,11 +66,8 @@ extern "C" void app_main(void) {
 
     while (true) {
         btn.poll(dt_ms);
+        // poll the 4-button block (events BTN,11..14,DOWN/UP)
         four.poll(dt_ms);
-
-        // ADDED: poll the 4 buttons (events BTN,11..14,DOWN/UP)
-
-        four.poll(cfg::POLL_PERIOD_MS);
         pot_accum_ms += dt_ms;
         if (pot_accum_ms >= cfg::POT_INTERVAL_MS) {
             pot.poll(pot_accum_ms);   // pass the elapsed time chunk
