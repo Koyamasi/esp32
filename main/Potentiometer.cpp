@@ -1,8 +1,12 @@
+// Potentiometer.cpp - implementation of ADC-based potentiometer reader
+
 #include "Potentiometer.h"
 #include "esp_check.h"
 
-Potentiometer::Potentiometer(adc_unit_t unit, adc_channel_t ch, uint8_t id, EventQueue& bus, int reportIntervalMs)
-: unit_(unit), ch_(ch), id_(id), bus_(bus), reportIntervalMs_(reportIntervalMs) {
+// Initialize the ADC unit/channel and store configuration
+Potentiometer::Potentiometer(adc_unit_t unit, adc_channel_t ch, uint8_t id,
+                             EventQueue& bus, int reportIntervalMs)
+    : unit_(unit), ch_(ch), id_(id), bus_(bus), reportIntervalMs_(reportIntervalMs) {
     adc_oneshot_unit_init_cfg_t init_cfg = {};
     init_cfg.unit_id = unit_;
     init_cfg.ulp_mode = ADC_ULP_MODE_DISABLE;
@@ -14,6 +18,7 @@ Potentiometer::Potentiometer(adc_unit_t unit, adc_channel_t ch, uint8_t id, Even
     ESP_ERROR_CHECK(adc_oneshot_config_channel(unitHandle_, ch_, &chan_cfg));
 }
 
+// Clean up the ADC driver when destroyed
 Potentiometer::~Potentiometer() {
     if (unitHandle_) {
         adc_oneshot_del_unit(unitHandle_);
@@ -21,6 +26,7 @@ Potentiometer::~Potentiometer() {
     }
 }
 
+// Map a raw 0..4095 reading into 8 buckets numbered 1..8
 int Potentiometer::bucket8(int raw) {
     int b = 1 + (raw * 8) / 4096;
     if (b < 1) b = 1;
@@ -28,9 +34,10 @@ int Potentiometer::bucket8(int raw) {
     return b;
 }
 
+// Periodically sample the ADC and emit an event when the bucket changes
 void Potentiometer::poll(int dtMs) {
     timerMs_ += dtMs;
-    if (timerMs_ < reportIntervalMs_) return;
+    if (timerMs_ < reportIntervalMs_) return; // not time yet
     timerMs_ = 0;
 
     int raw = 0;
