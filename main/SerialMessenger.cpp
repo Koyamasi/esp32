@@ -1,18 +1,23 @@
+// SerialMessenger.cpp - print events from the queue to the serial port
+
 #include "SerialMessenger.h"
 
 SerialMessenger::SerialMessenger(EventQueue& bus) : bus_(bus) {
-    // flush each line immediately so Unity sees events instantly
+    // Flush each line immediately so that test harnesses see events promptly
     setvbuf(stdout, NULL, _IONBF, 0);
 }
 
+// Start the FreeRTOS task that will process events
 void SerialMessenger::startTask(const char* name, uint32_t stack, UBaseType_t prio) {
     xTaskCreate(&SerialMessenger::taskTrampoline, name, stack, this, prio, nullptr);
 }
 
+// Static wrapper that invokes the member function
 void SerialMessenger::taskTrampoline(void* arg) {
     static_cast<SerialMessenger*>(arg)->run();
 }
 
+// Main task loop: wait for events and print them
 void SerialMessenger::run() {
     Event e;
     while (true) {
@@ -25,7 +30,8 @@ void SerialMessenger::run() {
                 printf("POT,%u,%d\n", e.id, e.data.bucket);
                 break;
             }
-            vTaskDelay(1);   // <-- give IDLE a chance; prevents WDT
+            // Small delay gives other tasks a chance to run and avoids WDT
+            vTaskDelay(1);
         }
     }
 }
