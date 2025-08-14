@@ -34,7 +34,7 @@ extern "C" void app_main(void) {
         { GPIO_NUM_40, 13 },
         { GPIO_NUM_39, 14 },
     };
-    static FourButtons four(four_specs, /*debounceMs=*/30, /*activeLow=*/true);
+    static FourButtons four(four_specs, bus, /*debounceMs=*/30, /*activeLow=*/true);
 
     ESP_LOGI(TAG, "Polling every %d ms; UART @ 115200", cfg::POLL_PERIOD_MS);
     ESP_LOGI(TAG, "Messages: BTN,<id>,DOWN/UP | POT,<id>,1..8");
@@ -44,7 +44,7 @@ extern "C" void app_main(void) {
         btn.poll(cfg::POLL_PERIOD_MS);
         pot.poll(cfg::POLL_PERIOD_MS);
 
-        // ADDED: poll the 4 buttons (prints BTN,11..14,DOWN/UP)
+        // ADDED: poll the 4 buttons (events BTN,11..14,DOWN/UP)
         four.poll(cfg::POLL_PERIOD_MS);
 
         vTaskDelay(period);

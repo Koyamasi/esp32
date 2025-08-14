@@ -1,8 +1,7 @@
 #include "FourButtons.h"
-#include <stdio.h>
 
-FourButtons::FourButtons(const ButtonSpec specs[4], int debounceMs, bool activeLow)
-    : debounceMs_(debounceMs), activeLow_(activeLow) {
+FourButtons::FourButtons(const ButtonSpec specs[4], EventQueue& bus, int debounceMs, bool activeLow)
+    : bus_(bus), debounceMs_(debounceMs), activeLow_(activeLow) {
     for (int i = 0; i < 4; ++i) {
         btn_[i] = specs[i];
 
@@ -37,8 +36,11 @@ void FourButtons::poll(int dtMs) {
             timerMs_[i] += dtMs;
             if (timerMs_[i] >= debounceMs_ && rawDown != stableDown_[i]) {
                 stableDown_[i] = rawDown;
-                // Print exactly one line per stable edge
-                printf("BTN,%u,%s\n", btn_[i].id, stableDown_[i] ? "DOWN" : "UP");
+                Event e;
+                e.type = EventType::ButtonEdge;
+                e.id = btn_[i].id;
+                e.data.down = stableDown_[i];
+                bus_.send(e);
             }
         }
     }
