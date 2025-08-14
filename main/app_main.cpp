@@ -40,15 +40,14 @@ extern "C" void app_main(void) {
     tx.startTask("serial_tx", 4096, 1);  // keep low prio
 
 
-    // Four additional buttons (active-low with internal pull-ups).  IDs are
-    // chosen to avoid collision with existing BTN1_ID.
-    // 4-button block (active-low with internal pull-ups)
-
+    // Four additional buttons (active-low with internal pull-ups).
+    // Pins avoid cfg::BTN1_PIN and map to IDs 11-14 as shown below:
+    //   GPIO41->ID11, GPIO40->ID12, GPIO39->ID13, GPIO38->ID14
     static const ButtonSpec four_specs[4] = {
-        { GPIO_NUM_42, 11 },
-        { GPIO_NUM_41, 12 },
-        { GPIO_NUM_40, 13 },
-        { GPIO_NUM_39, 14 },
+        { cfg::BTN4_PINS[0], cfg::BTN4_IDS[0] },
+        { cfg::BTN4_PINS[1], cfg::BTN4_IDS[1] },
+        { cfg::BTN4_PINS[2], cfg::BTN4_IDS[2] },
+        { cfg::BTN4_PINS[3], cfg::BTN4_IDS[3] },
     };
     static FourButtons four(four_specs, bus, /*debounceMs=*/30, /*activeLow=*/true);
 
