@@ -1,6 +1,9 @@
 // SerialMessenger.cpp - print events from the queue to the serial port
 
 #include "SerialMessenger.h"
+#include "esp_log.h"
+
+static const char* TAG = "SerialMessenger";
 
 SerialMessenger::SerialMessenger(EventQueue& bus) : bus_(bus) {
     // Flush each line immediately so that test harnesses see events promptly
@@ -9,7 +12,11 @@ SerialMessenger::SerialMessenger(EventQueue& bus) : bus_(bus) {
 
 // Start the FreeRTOS task that will process events
 void SerialMessenger::startTask(const char* name, uint32_t stack, UBaseType_t prio) {
-    xTaskCreate(&SerialMessenger::taskTrampoline, name, stack, this, prio, nullptr);
+    BaseType_t status = xTaskCreate(&SerialMessenger::taskTrampoline, name, stack,
+                                    this, prio, nullptr);
+    if (status != pdPASS) {
+        ESP_LOGE(TAG, "Failed to create task %s", name);
+    }
 }
 
 // Static wrapper that invokes the member function
