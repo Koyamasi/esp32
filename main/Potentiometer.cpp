@@ -2,6 +2,9 @@
 
 #include "Potentiometer.h"
 #include "esp_check.h"
+#include "esp_log.h"
+
+static const char* TAG = "Potentiometer";
 
 // Initialize the ADC unit/channel and store configuration
 Potentiometer::Potentiometer(adc_unit_t unit, adc_channel_t ch, uint8_t id,
@@ -41,7 +44,8 @@ void Potentiometer::poll(int dtMs) {
     timerMs_ = 0;
 
     int raw = 0;
-    if (adc_oneshot_read(unitHandle_, ch_, &raw) == ESP_OK) {
+    esp_err_t err = adc_oneshot_read(unitHandle_, ch_, &raw);
+    if (err == ESP_OK) {
         int b = bucket8(raw);
         if (b != lastBucket_) {
             lastBucket_ = b;
@@ -51,5 +55,7 @@ void Potentiometer::poll(int dtMs) {
             e.data.bucket = b;
             bus_.send(e);
         }
+    } else {
+        ESP_LOGW(TAG, "adc_oneshot_read failed: %s (%d)", esp_err_to_name(err), err);
     }
 }
