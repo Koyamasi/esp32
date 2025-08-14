@@ -1,5 +1,11 @@
 # ESP32 Input Firmware
 
+This project demonstrates a simple event-driven input stack for the ESP32.
+It polls hardware inputs and reports button and potentiometer changes over the
+serial port.
+
+See [docs/architecture.md](docs/architecture.md) for an overview of the event
+flow and polling loop.
 This project demonstrates a simple ESP-IDF application that reads buttons and a potentiometer, drives an indicator LED, and reports input events over the serial port. It is intended for small hardware bring-up or for learning basic ESP-IDF GPIO and ADC usage.
 
 ## Hardware
