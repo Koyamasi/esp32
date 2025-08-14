@@ -1,24 +1,45 @@
-// Potentiometer.h - ADC-based potentiometer reader with bucketized events
+/**
+ * @file Potentiometer.h
+ * @brief ADC-based potentiometer reader with bucketized events.
+ */
 
 #pragma once
 #include <stdint.h>
 #include "esp_adc/adc_oneshot.h"
 #include "EventQueue.h"
 
-// Reads a potentiometer using the ESP32 one-shot ADC driver and reports the
-// value in coarse "buckets" to reduce serial traffic.
+/**
+ * @brief Reads a potentiometer using the ESP32 one-shot ADC driver and reports
+ * the value in coarse "buckets" to reduce serial traffic.
+ */
 class Potentiometer {
 public:
-    // "unit" and "ch" select the ADC unit/channel.  "id" identifies events
-    // sent to the EventQueue.  "reportIntervalMs" is the polling period.
+    /**
+     * @brief Initialize the potentiometer reader.
+     * @param unit ADC unit to use.
+     * @param ch ADC channel on the unit.
+     * @param id Identifier for generated events.
+     * @param bus Event queue to publish to.
+     * @param reportIntervalMs Polling period in milliseconds.
+     */
     Potentiometer(adc_unit_t unit, adc_channel_t ch, uint8_t id,
                   EventQueue& bus, int reportIntervalMs);
+    /**
+     * @brief Clean up the ADC driver.
+     */
     ~Potentiometer();
 
-    // Poll the ADC and send an event when the bucket changes
+    /**
+     * @brief Poll the ADC and send an event when the bucket changes.
+     * @param dtMs Elapsed time in milliseconds since the last call.
+     */
     void poll(int dtMs);
 
-    // Convert a raw ADC reading into one of eight buckets (1..8)
+    /**
+     * @brief Convert a raw ADC reading into one of eight buckets.
+     * @param raw Raw ADC reading.
+     * @return Bucket number from 1 to 8.
+     */
     static int bucket8(int raw);
 
 private:

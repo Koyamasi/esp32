@@ -1,31 +1,40 @@
-// Button.h - declaration of a debounced push button helper
-//
-// Each Button instance monitors a GPIO input and posts an event to an
-// EventQueue whenever the button state changes.  An optional LED can be
-// "mirrored" so that the LED follows the button state.  The implementation
-// performs simple software debouncing based on a poll interval provided by
-// the caller.
+/**
+ * @file Button.h
+ * @brief Declaration of a debounced push button helper.
+ *
+ * Each Button instance monitors a GPIO input and posts an event to an
+ * EventQueue whenever the button state changes. An optional LED can be
+ * "mirrored" so that the LED follows the button state. The implementation
+ * performs simple software debouncing based on a poll interval provided by
+ * the caller.
+ */
 
 #pragma once
 #include <stdint.h>
 #include "driver/gpio.h"
 #include "EventQueue.h"
 
-// Forward declaration to avoid circular include
+/** Forward declaration to avoid circular include. */
 class Led;
 
-// Represents a single debounced button connected to a GPIO pin.
+/** @brief Represents a single debounced button connected to a GPIO pin. */
 class Button {
 public:
-    // Construct a button on the given pin.  "id" is used in generated events.
-    // "bus" is where events are posted.  "debounceMs" specifies the minimum
-    // time a level must be stable before an edge is reported.  If "mirror" is
-    // provided the LED's state is updated to match the button.
+    /**
+     * @brief Construct a button on the given pin.
+     * @param pin GPIO pin connected to the button.
+     * @param id Identifier used when generating events.
+     * @param bus Queue to which events are posted.
+     * @param debounceMs Minimum time a level must be stable before reporting.
+     * @param mirror Optional LED whose state mirrors the button.
+     */
     Button(gpio_num_t pin, uint8_t id, EventQueue& bus, int debounceMs,
            Led* mirror = nullptr);
 
-    // Poll the hardware.  Call this periodically with the elapsed time in
-    // milliseconds since the last call.
+    /**
+     * @brief Poll the hardware.
+     * @param dtMs Elapsed time in milliseconds since the last call.
+     */
     void poll(int dtMs);
 
 private:
